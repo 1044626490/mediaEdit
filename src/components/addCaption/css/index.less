@@ -1,0 +1,48 @@
+.txt-wrap {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  .header-txt {
+    display: flex;
+    justify-content: space-between;
+    line-height: 32px;
+    margin-bottom: 10px;
+    .right-operator {
+      cursor: pointer;
+      svg {
+        position: relative;
+        top: 2px;
+      }
+    }
+  }
+  .caption-edit {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    & > span {
+      margin-right: 10px;
+      font-size: 14px;
+      color: #606266;
+    }
+  }
+  .txt-line {
+    flex: 1;
+    :deep(.el-timeline-item__content) {
+      & > div {
+        word-break: break-word;
+        cursor: pointer;
+        margin-bottom: 5px;
+      }
+      .editPosition {
+        color: var(--el-color-primary);
+        cursor: pointer;
+        margin-right: 10px;
+        white-space: nowrap;
+        &:hover {
+          color: #79bbff;
+        }
+      }
+    }
+  }
+}
