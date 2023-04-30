@@ -42,10 +42,10 @@
           :timestamp="activity.timestamp"
         >
           <div @click="addCaptions(index)">
-            {{ activity.txt1 }}
+            {{ ` ${activity.txt1} ` }}
           </div>
           <div @click="addCaptions(index)" v-show="!checkIsOneLine">
-            {{ activity.txt2 }}
+            {{ ` ${activity.txt2} ` }}
           </div>
           <div>
             <span

@@ -2,6 +2,7 @@
   <el-dialog
     width="500px"
     :destroy-on-close="true"
+    :close-on-click-modal="false"
     v-model="addPicData.showAdd"
     :title="getTitle"
   >
