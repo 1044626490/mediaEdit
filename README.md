@@ -1,9 +1,27 @@
-# Vue 3 + Vite
-
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
 # 使用说明
+
+npm run dev 启动本地服务，默认端口号 8080
+一、视频功能
+（1）支持添加视频的功能
+（2）支持视频的剪切功能，可以将一个视频段从中间分割成两个视频（时间点可选，支持输入或者拖拽修改时间点）
+（3）支持视频列表顺序的修改，通过拖拽视频修改其顺序
+（4）支持删除视频列表里面的某一个视频
+（5）弹出框通过点击视频打开，鼠标移开弹框后，弹框消失
+
+二、图片功能
+（1）支持新增图片，新增图片时可以设置图片的存在时间，同时可以查看图片的放大图以及删除图片，保存按钮会监测当前输入的时间范围是否会出现超出规则（同时存在的图片只能小于等于三个），超出规则，则不能点击保存按钮
+（2）图片列表中的图片可以右键打开图片的编辑列表，包含修改位置和删除
+（3）点击删除可以删除当前图片
+（4）点击修改位置，会在视频中出现当前图片的之前的位置以及大小和旋转角度（新增的时候，图片默认 200px 宽/高，图片自适应，默认居中），可以点击图片的中心的两个旋转按钮，分别是逆时针旋转和顺时针旋转，可以拖拽右边框和下边框缩放图片，同时只能支持编辑一个图片
+（5）点击新增会取消当前编辑操作
+
+三、字幕与文字
+（1）支持添加文字，支持修改单双轨道，添加文字时，可以不输入任何字幕，但是时间不能超过规则（同一时间只能出现一个字幕，该字幕可以是单字幕，也可以是双字幕），时间旋转的范围也是可以通过拖拽选择或者输入旋转，超过规则后不能保存
+（2）支持字幕/文字的删除
+（3）字幕和文字都支持修改字体大小/颜色/位置，文字的设置是针对于单个文字设置，而字幕则是针对整体设置，设置后，所有的字幕统一使用同一个位置颜色大小
+（4）文字只支持同时编辑一个文字的位置
+（5）文字不检查存在的时间限制，允许同一时间展示任意数量的文字
+
+四、预览与导出
+（1）播放时会直接呈现出当前已经设置好的内容，通过视频播放组件的时间更新会自动刷新，未播放时，修改了设置的内容，不能直接更新
+（2）支持导出，非真正导出，而是弹出弹框，展示传给后端的数据
