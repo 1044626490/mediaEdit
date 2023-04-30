@@ -253,10 +253,16 @@ const exportData = reactive({
       src: playerOptions.src, // 视频路径（一般导入到后端，src获取来源于后端）
     };
     // 字幕数据
+    const { left, top } = captionPosition;
+    const { color, fontSize } = addCaptionsRef.value.capTionData;
     const captionData = {
-      capTionData: addCaptionsRef.value.capTionData, // 包含颜色，字体大小
+      commonCaptionData: {
+        left,
+        top,
+        color,
+        fontSize,
+      },
       txtData: addCaptionsRef.value.txtData.timeLineList, // 字幕数组
-      captionPosition, // 字幕定位
       textType: addCaptionsRef.value.txtData.textType, // 轨道类型
     };
     // 文字数据
@@ -453,8 +459,8 @@ const videoEdit = reactive({
     // 编辑时间点blur函数
     if (/^\d+[:]\d{1,2}[:]\d{1,2}$/.test(videoEdit.backSplitPointTime)) {
       let end = getSecond(videoEdit.backSplitPointTime);
-      const tolal = getSecond(videoEdit.totalEnd);
-      const start = getSecond(videoEdit.totalStart);
+      const tolal = videoEdit.totalEnd;
+      const start = videoEdit.totalStart;
       if (end > tolal) {
         videoEdit.backSplitPointTime = videoEdit.splitPointTime;
       }
@@ -502,8 +508,6 @@ const captionPosition = reactive({
   top: "50%",
   changeLeft: "50%",
   changeTop: "50%",
-  fontFamliy: "",
-  fontSize: 14,
   menus: [
     // 右键菜单
     {
