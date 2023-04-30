@@ -124,8 +124,11 @@ const txtData = reactive({
   textType: textTypeKey.one, // 默认为单轨字幕
   timeLineList: [],
 });
+function checkNeedResetIndex (index) {
+  return !props.isCaption && index < props.wordEdit.index && props.wordEdit.show
+}
 function deleteTxt(index) {
-  if (index < props.wordEdit.index && props.wordEdit.show) {
+  if (checkNeedResetIndex(index)) {
     props.wordEdit.resetIndex(props.wordEdit.index - 1);
   }
   txtData.timeLineList.splice(index, 1);
