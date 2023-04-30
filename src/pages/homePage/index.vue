@@ -681,6 +681,9 @@ const picEdit = reactive({
       },
     },
   ],
+  resetIndex(index) {
+    picEdit.index = index;
+  },
   imgMenu(event) {
     menusEvent(event, picEdit);
     event.preventDefault();
