@@ -209,34 +209,46 @@ function createListen() {
   });
 }
 
+// 检查两个图片时间是否冲突
+function checkIsConlict(item, item1) {
+  const start = getSecond(item.start);
+  const end = getSecond(item.end);
+  const itemStart = getSecond(item1.start);
+  const itemEnd = getSecond(item1.end);
+  return (itemStart <= start && itemEnd >= start) ||
+      (itemStart <= end && itemEnd >= end) ||
+      (itemStart >= start && itemEnd <= end)
+}
+
 function checkTimeIsNOk() {
   if (!addPicData.src) {
     return true;
   }
-  // 检查时间是否有冲突
-  let conflictTime = 0;
-  props.picData.some((item, index) => {
+  const conflictList = [];
+  props.picData.forEach((item, index) => {
     if (index === addPicData.index) {
       return false;
     }
-    const itemStart = getSecond(item.start);
-    const itemEnd = getSecond(item.end);
-    const start = getSecond(addPicData.start);
-    const end = getSecond(addPicData.end);
-    if (
-      (itemStart <= start && itemEnd >= start) ||
-      (itemStart <= end && itemEnd >= end) ||
-      (itemStart >= start && itemEnd <= end)
-    ) {
-      conflictTime++;
-    }
-    if (conflictTime >= 3) {
-      return true;
+    if (checkIsConlict(addPicData, item)) {
+      conflictList.push(item)
     }
   });
-  if (conflictTime >= 3) {
-    return true;
-  }
+  // 如果冲突列表中存在某个时间与其他时间冲突2次的情况，那当前添加的时间则会导致超出规则
+  const hasOverThreeConflict = conflictList.some((item, index) => {
+    let itemConflictTime = 0;
+    let otherList = JSON.parse(JSON.stringify(conflictList));
+    otherList.splice(index, 1);
+    return otherList.some(item1 => {
+      if (checkIsConlict(item, item1)) {
+        itemConflictTime++
+      }
+      if (itemConflictTime >= 2) {
+        return true;
+      }
+      return false;
+    })
+  })
+  return hasOverThreeConflict;
 }
 
 function changeTime(type) {
