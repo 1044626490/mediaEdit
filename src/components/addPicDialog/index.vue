@@ -1,5 +1,11 @@
 <template>
-  <el-dialog width="500px" v-model="addPicData.showAdd" :title="getTitle">
+  <el-dialog
+    width="500px"
+    :destroy-on-close="true"
+    :close-on-click-modal="false"
+    v-model="addPicData.showAdd"
+    :title="getTitle"
+  >
     <div class="addPic-wrap">
       <el-form label-width="68px">
         <el-form-item label="上传图片">
@@ -219,7 +225,8 @@ function checkTimeIsNOk() {
     const end = getSecond(addPicData.end);
     if (
       (itemStart <= start && itemEnd >= start) ||
-      (itemStart <= end && itemEnd >= end)
+      (itemStart <= end && itemEnd >= end) ||
+      (itemStart >= start && itemEnd <= end)
     ) {
       conflictTime++;
     }

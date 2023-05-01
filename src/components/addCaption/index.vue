@@ -42,10 +42,10 @@
           :timestamp="activity.timestamp"
         >
           <div @click="addCaptions(index)">
-            {{ activity.txt1 }}
+            {{ ` ${activity.txt1} ` }}
           </div>
           <div @click="addCaptions(index)" v-show="!checkIsOneLine">
-            {{ activity.txt2 }}
+            {{ ` ${activity.txt2} ` }}
           </div>
           <div>
             <span
@@ -78,7 +78,6 @@
     </div>
     <addTxtDialog
       ref="addTxtDialogRef"
-      :destroy-on-close="true"
       :txtData="txtData"
       :totalTime="totalTime"
       :isCaption="isCaption"
@@ -125,7 +124,13 @@ const txtData = reactive({
   textType: textTypeKey.one, // 默认为单轨字幕
   timeLineList: [],
 });
+function checkNeedResetIndex (index) {
+  return !props.isCaption && index < props.wordEdit.index && props.wordEdit.show
+}
 function deleteTxt(index) {
+  if (checkNeedResetIndex(index)) {
+    props.wordEdit.resetIndex(props.wordEdit.index - 1);
+  }
   txtData.timeLineList.splice(index, 1);
 }
 const checkIsOneLine = computed(() => {

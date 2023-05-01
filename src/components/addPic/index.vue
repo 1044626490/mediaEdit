@@ -84,6 +84,12 @@ const menus = reactive({
     {
       label: "删除",
       click: () => {
+        if (menus.index === props.picEdit.index && props.picEdit.show) {
+          props.picEdit.cancel();
+        }
+        if (props.picEdit.index > menus.index) {
+          props.picEdit.resetIndex(props.picEdit.index - 1);
+        }
         picData.splice(menus.index, 1);
       },
     },

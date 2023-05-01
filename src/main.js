@@ -4,6 +4,7 @@ import router from "./router/index";
 import { directive, Vue3Menus } from "vue3-menus";
 import resizable from "./services/resizable";
 import draggable from "vuedraggable";
+import JsonViewer from "vue-json-viewer";
 
 import "./style.css";
 
@@ -13,6 +14,7 @@ const app = createApp(App);
 
 app.use(router);
 app.use(resizable);
+app.use(JsonViewer);
 
 app.component("draggable", draggable);
 app.component("vue3-menus", Vue3Menus);

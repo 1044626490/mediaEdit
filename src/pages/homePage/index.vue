@@ -47,12 +47,14 @@
             <img
               @mousedown="picEdit.rotateChange('left', true)"
               @click="picEdit.rotateChange('left', false)"
+              @mouseleave="picEdit.rotateChange('left', false)"
               src="@/assets/acrotate.svg"
               alt=""
             />
             <img
               @mousedown="picEdit.rotateChange('right', true)"
               @click="picEdit.rotateChange('right', false)"
+              @mouseleave="picEdit.rotateChange('right', false)"
               src="@/assets/cwrotate.svg"
               alt=""
             />
@@ -108,7 +110,15 @@
             v-show="!captionPosition.show"
             >修改字幕位置</el-button
           >
+          <el-button :disabled="!playerOptions.src" @click="exportData.init"
+            >导出</el-button
+          >
         </div>
+        <el-dialog title="导出数据" v-model="exportData.showJson">
+          <div class="export-wrap">
+            <json-viewer :value="exportData.data"></json-viewer>
+          </div>
+        </el-dialog>
         <div class="video-pic-wrap">
           <draggable
             :list="playerOptions.videoList"
@@ -229,9 +239,51 @@ const uploadMVRef = ref(null);
 const addCaptionsRef = ref(null);
 const addWordRef = ref(null);
 const addPicRef = ref(null);
-
+// 用于视频展示判断是否是单轨道
 const textType = ref(textTypeKey.one);
 
+// 导出展示
+const exportData = reactive({
+  data: {},
+  showJson: false,
+  init() {
+    // 视频数据
+    const videoData = {
+      videoList: playerOptions.videoList, // 视频列表，按顺序播放
+      src: playerOptions.src, // 视频路径（一般导入到后端，src获取来源于后端）
+    };
+    // 字幕数据
+    const { left, top } = captionPosition;
+    const { color, fontSize } = addCaptionsRef.value.capTionData;
+    const captionData = {
+      commonCaptionData: {
+        left,
+        top,
+        color,
+        fontSize,
+      },
+      txtData: addCaptionsRef.value.txtData.timeLineList, // 字幕数组
+      textType: addCaptionsRef.value.txtData.textType, // 轨道类型
+    };
+    // 文字数据
+    const wordData = {
+      txtData: addWordRef.value.txtData.timeLineList, // 文字数组
+    };
+    // 图片数据
+    const imgData = {
+      picData: addPicRef.value.picData, // 图片数组
+    };
+    exportData.data = {
+      videoData,
+      captionData,
+      wordData,
+      imgData,
+    };
+    exportData.showJson = true;
+  },
+});
+
+// 视频播放时，各个时间应该展示的内容
 const showContent = reactive({
   img: [],
   word: [],
@@ -255,9 +307,10 @@ const playerOptions = reactive({
   volume: 1, //默认音量大小
   control: true, //是否显示控制
   controlBtns: ["audioTrack", "quality", "volume"], //显示所有按钮,
-  loadVideoOver,
-  videoList: [],
+  loadVideoOver, // 加载视频完成后回调
+  videoList: [], // 视频列表
   changeShowContent(currentTime) {
+    // 时间变换时修改展示的内容
     if (addPicRef.value && addWordRef.value && addCaptionsRef.value) {
       textType.value = addCaptionsRef.value.txtData.textType;
       showContent.img = addPicRef.value?.picData.filter(
@@ -283,11 +336,11 @@ const playerOptions = reactive({
     }
   },
 });
-const drag = ref(false);
+
 const mediaData = reactive({
   totalTime: "00:00:00", // 总时长
-  currentTime: "00:00:00", // 当前时间点
 });
+// 上传视频
 function clickUploadMV() {
   $(".upload-mv").click();
 }
@@ -301,7 +354,7 @@ function uploadMV() {
     videoPlayerRef.value.duration;
   });
 }
-
+// 分割视频时间点监听
 function createSplitDom() {
   $(".start-dom").mousedown(function (e) {
     const totalRight = $(".total-timeline").offset().left;
@@ -326,6 +379,7 @@ function createSplitDom() {
     });
   });
 }
+// 视频编辑对象
 const videoEdit = reactive({
   showSplitVideo: false,
   index: -1,
@@ -338,6 +392,7 @@ const videoEdit = reactive({
   totalEnd: 0,
   totalStart: 0,
   init(index) {
+    // 初始化数据
     videoEdit.index = index;
     videoEdit.start = playerOptions.videoList[index].start;
     videoEdit.end = playerOptions.videoList[index].end;
@@ -356,6 +411,7 @@ const videoEdit = reactive({
     nextTick(createSplitDom);
   },
   split() {
+    // 分割
     videoPlayerRef.value.screentShotFn(videoEdit.splitPoint, (res) => {
       let end = videoEdit.splitPoint;
       let start = videoEdit.splitPoint;
@@ -385,6 +441,7 @@ const videoEdit = reactive({
     });
   },
   deleteVideo() {
+    // 删除
     playerOptions.videoList.splice(videoEdit.index, 1);
     videoEdit.showSplitVideo = false;
     if (playerOptions.videoList.length) {
@@ -399,10 +456,11 @@ const videoEdit = reactive({
     }
   },
   editTime() {
+    // 编辑时间点blur函数
     if (/^\d+[:]\d{1,2}[:]\d{1,2}$/.test(videoEdit.backSplitPointTime)) {
       let end = getSecond(videoEdit.backSplitPointTime);
-      const tolal = getSecond(videoEdit.totalEnd);
-      const start = getSecond(videoEdit.totalStart);
+      const tolal = videoEdit.totalEnd;
+      const start = videoEdit.totalStart;
       if (end > tolal) {
         videoEdit.backSplitPointTime = videoEdit.splitPointTime;
       }
@@ -414,13 +472,15 @@ const videoEdit = reactive({
     }
   },
 });
-
+// 关闭监听
 watch(videoEdit, () => {
   if (!videoEdit.showSplitVideo) {
     $(".start-dom").off("mousedown");
   }
 });
-
+// 视频拖拽参数
+const drag = ref(false);
+// 拖拽结束回调
 function dragEnd(evt) {
   const duration = playerOptions.videoList.reduce((num, item) => {
     num += getSecond(item.end) - getSecond(item.start) + 1;
@@ -429,7 +489,7 @@ function dragEnd(evt) {
   videoPlayerRef.value.setDuration(duration);
   evt.preventDefault();
 }
-
+// 初始化加载视频回调
 function loadVideoOver(totalTime) {
   mediaData.totalTime = totalTime;
   playerOptions.videoList.splice(0);
@@ -441,16 +501,15 @@ function loadVideoOver(totalTime) {
     });
   });
 }
-
+// 字幕定位数据
 const captionPosition = reactive({
   show: false,
   left: "50%",
   top: "50%",
   changeLeft: "50%",
   changeTop: "50%",
-  fontFamliy: "",
-  fontSize: 14,
   menus: [
+    // 右键菜单
     {
       label: "保存",
       click: () => {
@@ -479,11 +538,11 @@ const captionPosition = reactive({
     this.show = false;
   },
 });
-
+// 添加图片
 function addNewPic() {
   addPicRef.value.addPicData();
 }
-
+// 右侧tab数据
 const rightTabData = reactive({
   activeName: Object.keys(tabName)[0],
   tabList: Object.keys(tabName).map((item) => ({
@@ -578,6 +637,9 @@ const wordEdit = reactive({
     menusEvent(event, wordEdit);
     event.preventDefault();
   },
+  resetIndex(index) {
+    wordEdit.index = index;
+  },
   init(data, index) {
     wordEdit.index = index;
     wordEdit.show = true;
@@ -619,6 +681,9 @@ const picEdit = reactive({
       },
     },
   ],
+  resetIndex(index) {
+    picEdit.index = index;
+  },
   imgMenu(event) {
     menusEvent(event, picEdit);
     event.preventDefault();
@@ -634,7 +699,7 @@ const picEdit = reactive({
             picEdit.rotate = 360;
           }
         } else {
-          picEdit.rotate = picEdit.rotate === 260 ? 0 : picEdit.rotate;
+          picEdit.rotate = picEdit.rotate === 360 ? 0 : picEdit.rotate;
           picEdit.rotate++;
           if (picEdit.rotate === 360) {
             picEdit.rotate = 0;
@@ -673,5 +738,13 @@ onMounted(() => {
 @import url(./css/index.less);
 .time-input {
   margin-bottom: 20px;
+}
+:deep(.el-dialog__body) {
+  max-height: 70vh;
+  overflow: hidden;
+  .export-wrap {
+    max-height: 70vh;
+    overflow: auto;
+  }
 }
 </style>

@@ -1,5 +1,11 @@
 <template>
-  <el-dialog width="500px" v-model="addCaptionsData.showAdd" :title="getTitle">
+  <el-dialog
+    width="500px"
+    :destroy-on-close="true"
+    :close-on-click-modal="false"
+    v-model="addCaptionsData.showAdd"
+    :title="getTitle"
+  >
     <div class="addCaptions-wrap">
       <el-form label-width="70px">
         <el-form-item :label="isCaption ? '轨迹一' : '文字'">
@@ -80,7 +86,7 @@ const props = defineProps({
   saveTxt: Function,
   isCaption: Boolean,
 });
-
+// 获取顶部title
 const getTitle = computed(() => {
   if (props.isCaption) {
     if (addCaptionsData.index > -1) {
@@ -93,10 +99,11 @@ const getTitle = computed(() => {
   }
   return "添加文字";
 });
+// 判断是否展示第二轨道输入框
 const showSecondInput = computed(() => {
   return props.txtData.textType === textTypeKey.two && props.isCaption;
 });
-
+// 字幕输入时，用于判断是否有冲突
 function getLineStyle(item) {
   const start = getSecond(item.start);
   const end = getSecond(item.end) + 1;
@@ -105,7 +112,7 @@ function getLineStyle(item) {
   const width = (end / total - start / total) * 100;
   return `left: ${left}%;width: ${width}%`;
 }
-
+// 添加字幕/文字的初始化数据
 const addCaptionsData = reactive({
   showAdd: false,
   index: -1,
@@ -145,11 +152,13 @@ const addCaptionsData = reactive({
     });
   },
 });
+// 监听字体变化，删除内容时，回填默认值
 watch(addCaptionsData, () => {
   if (!addCaptionsData.fontSize) {
     addCaptionsData.fontSize = 14;
   }
 });
+// 监听开始和结束时间
 function createListen() {
   $(".start-dom").mousedown(function (e) {
     const totalRight = $(".total-timeline").offset().left;
@@ -196,7 +205,7 @@ function createListen() {
     });
   });
 }
-
+// 检查时间是否OK，文字无需监听
 function checkTimeIsNOk() {
   if (!props.isCaption) {
     return false;
@@ -219,7 +228,7 @@ function checkTimeIsNOk() {
     return false;
   });
 }
-
+// inputNumber输入框校验输入内容
 function changeTime(type) {
   if (
     /^\d+[:]\d{1,2}[:]\d{1,2}$/.test(addCaptionsData.baseStart) &&
@@ -246,12 +255,12 @@ function changeTime(type) {
     addCaptionsData.baseEnd = addCaptionsData.end;
   }
 }
-
+// 保存
 function save() {
   props.saveTxt(addCaptionsData);
   addCaptionsData.showAdd = false;
 }
-
+// 清空监听
 watch(addCaptionsData, () => {
   if (!addCaptionsData.showAdd) {
     $(".start-dom").off("mousedown");
